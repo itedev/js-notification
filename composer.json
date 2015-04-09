@@ -1,5 +1,5 @@
 {
-  "name": "ite/js-notifications",
+  "name": "ite/js-notification",
   "type": "library",
   "description": "Provide support of display notifications via Javascript",
   "keywords": ["javascript", "jquery", "ajax", "notifications"],
@@ -17,8 +17,8 @@
   },
   "autoload": {
     "psr-0": {
-      "ITE\\Js\\Notifications": ""
+      "ITE\\Js\\Notification": ""
     }
   },
-  "target-dir": "ITE/Js/Notifications"
+  "target-dir": "ITE/Js/Notification"
 }

@@ -1,0 +1,9 @@
+parameters:
+  ite_js.notifications.collector.session.class: ITE\Js\Notification\Collector\SessionCollector
+
+services:
+  ite_js.notifications.collector.session:
+    class: %ite_js.notifications.collector.session.class%
+    arguments: [@session, %ite_js.notifications.collectors.session.bag_name%]
+    tags:
+      - { name: ite_js.notifiactions.collector }
