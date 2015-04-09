@@ -1,7 +1,7 @@
 (function ($) {
   // FlashBag
   var FlashBag = function() {
-    this.flashes = {};
+    this.flashes = [];
   };
 
   FlashBag.prototype = {
@@ -10,7 +10,7 @@
         title: title,
         message: message,
         type: type,
-        pluginOptions: pluginOptions,
+        pluginOptions: pluginOptions
       });
     },
     all: function() {
@@ -22,6 +22,7 @@
       $.each(this.flashes, function(i, flash) {
         $(document).trigger('ite-show.notification', flash);
       });
+      this.flashes = [];
     }
   };
 
@@ -36,13 +37,12 @@
 
     if (notifications) {
       var n = $.parseJSON(notifications);
-      var $this = this;
 
       $.each(n, function (i, notification) {
-        $this.flashes.add(notification.title, notification.message, notification.type, notification.pluginOptions);
+        SF.flashes.add(notification.title, notification.message, notification.type, notification.pluginOptions);
       });
 
-      this.flashes.show();
+      SF.flashes.show();
     }
   });
 

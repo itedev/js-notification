@@ -113,7 +113,9 @@ class NotificationExtension extends SFExtension
         $dump .= '(function($){$(function(){';
 
         foreach ($notifications as $notification) {
-            $dump .= 'SF.flashes.add("' . implode('","', $notification) . '"");';
+            $pluginOptions = json_encode($notification['pluginOptions']);
+            unset($notification['pluginOptions']);
+            $dump .= 'SF.flashes.add("'.implode('","', $notification).'", '.$pluginOptions.');';
         }
 
         $dump .= 'SF.flashes.show();';
