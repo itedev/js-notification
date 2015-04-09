@@ -2,6 +2,9 @@
 
 namespace ITE\Js\Notification;
 
+use ITE\Common\Extension\ExtensionFinder;
+use ITE\Js\Notification\Definition\Builder\PluginDefinition;
+use ITE\Js\Notification\Plugin\NotificationPlugin;
 use ITE\JsBundle\SF\SFExtension;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\FileLocator;
@@ -60,11 +63,23 @@ class NotificationExtension extends SFExtension
 
     public function addConfiguration(ArrayNodeDefinition $pluginsNode, ContainerBuilder $container)
     {
-        $pluginsNode
+        $node = $pluginsNode
             ->children()
                 ->arrayNode('notifications')
-                    ->canBeEnabled()
-                    ->children()
+                    ->canBeEnabled();
+
+        $iteDir = __DIR__.'/../../../../';
+
+        ExtensionFinder::loadExtensions(
+            function (NotificationPlugin $plugin) use ($node, $container) {
+                $node->append($plugin->addConfiguration(new PluginDefinition(), $container));
+            },
+            $iteDir,
+            'ITE\Js\Notification\Plugin\NotificationPlugin',
+            __DIR__
+        );
+
+        $node->children()
                         ->arrayNode('collectors')
                             ->addDefaultsIfNotSet()
                             ->children()
