@@ -1,0 +1,24 @@
+{
+  "name": "ite/js-notifications",
+  "type": "library",
+  "description": "Provide support of display notifications via Javascript",
+  "keywords": ["javascript", "jquery", "ajax", "notifications"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "sam0delkin",
+      "email": "t.samodelkin@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.4",
+    "ite/js-bundle": "dev-master"
+  },
+  "autoload": {
+    "psr-0": {
+      "ITE\\Js\\Notifications": ""
+    }
+  },
+  "target-dir": "ITE/Js/Notifications"
+}
