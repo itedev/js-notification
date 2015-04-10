@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 /**
  * Class SessionCollector
  *
- * @package ITE\Js\Notification\Collector
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
 class SessionCollector implements CollectorInterface

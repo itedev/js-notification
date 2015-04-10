@@ -18,7 +18,6 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 /**
  * Class NotificationExtension
  *
- * @package ITE\Js\Notification
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
 class NotificationExtension extends SFExtension
@@ -176,7 +175,7 @@ class NotificationExtension extends SFExtension
      */
     public function getJavascripts()
     {
-        $js = [__DIR__.'/Resources/public/js/sf.flash_bag.js'];
+        $js = [__DIR__.'/Resources/public/js/sf.notification.js'];
 
         foreach ($this->nm->getChannels() as $channel) {
             $js = array_merge($js, $channel->getJavascripts());

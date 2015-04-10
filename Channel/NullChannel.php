@@ -5,13 +5,12 @@ namespace ITE\Js\Notification\Channel;
 /**
  * Class NullChannel
  *
- * @package ITE\Js\Notification\Channel
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
 class NullChannel extends AbstractChannel
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getNotifications()
     {
@@ -19,10 +18,19 @@ class NullChannel extends AbstractChannel
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getName()
     {
         return 'null';
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCdnName()
+    {
+        return 'null';
+    }
+
 }

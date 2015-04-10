@@ -10,7 +10,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * Class AbstractChannel
  *
- * @package ITE\Js\Notification\Channel
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
 abstract class AbstractChannel implements ChannelInterface
