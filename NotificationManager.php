@@ -2,6 +2,8 @@
 
 namespace ITE\Js\Notification;
 
+use ITE\Js\Notification\Channel\ChannelInterface;
+use ITE\Js\Notification\Channel\NotificationAliasTrait;
 use ITE\Js\Notification\Collector\CollectorInterface;
 
 /**
@@ -12,10 +14,7 @@ use ITE\Js\Notification\Collector\CollectorInterface;
  */
 class NotificationManager
 {
-    /**
-     * @var array
-     */
-    protected $notifications = [];
+    use NotificationAliasTrait;
 
     /**
      * @var CollectorInterface[]
@@ -23,14 +22,70 @@ class NotificationManager
     protected $collectors = [];
 
     /**
-     * @return array
+     * @var ChannelInterface[]
+     */
+    protected $channels = [];
+
+    /**
+     * @var string
+     */
+    protected $currentChannel = 'null';
+
+    /**
+     * @param string $currentChannel
+     */
+    public function __construct($currentChannel)
+    {
+        $this->currentChannel = $currentChannel;
+    }
+
+
+    /**
+     * Select current channel.
+     *
+     * @param $name
+     * @return $this
+     */
+    public function channel($name)
+    {
+        if (!isset($this->channels[$name])) {
+            throw new \InvalidArgumentException(sprintf('Notifications channel "%s" is not defined.', $name));
+        }
+
+        $this->currentChannel = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return Notification[][]
      */
     public function getNotifications()
     {
-        $this->collectNotifications();
+        $notifications = $this->collectNotifications();
 
-        return $this->notifications;
+        foreach ($this->channels as $channel) {
+            $notifications[$channel->getName()] = empty($notifications[$channel->getName()])
+                ? [] : $notifications[$channel->getName()];
+
+            $notifications[$channel->getName()] = array_merge(
+                $notifications[$channel->getName()],
+                $channel->getNotifications()
+            );
+        }
+
+
+        return $notifications;
     }
+
+    /**
+     * @return Channel\ChannelInterface[]
+     */
+    public function getChannels()
+    {
+        return $this->channels;
+    }
+
 
     /**
      * @param       $title
@@ -40,12 +95,13 @@ class NotificationManager
      */
     public function addNotification($title, $message, $type, $pluginOptions = [])
     {
-        $this->notifications [] = [
-            'title'         => $title,
-            'message'       => $message,
-            'type'          => $type,
-            'pluginOptions' => $pluginOptions
-        ];
+        if (!isset($this->channels[$this->currentChannel])) {
+            throw new \InvalidArgumentException(
+                sprintf('Notifications channel "%s" is not defined.', $this->currentChannel)
+            );
+        }
+
+        $this->channels[$this->currentChannel]->addNotification($title, $message, $type, $pluginOptions);
     }
 
     /**
@@ -53,52 +109,33 @@ class NotificationManager
      */
     public function addCollector(CollectorInterface $collector)
     {
-        $this->collectors []= $collector;
+        $this->collectors [] = $collector;
     }
 
     /**
-     * @param $title
-     * @param $message
+     * @param ChannelInterface $channel
      */
-    public function success($title, $message)
+    public function addChannel(ChannelInterface $channel)
     {
-        $this->addNotification($title, $message, 'success');
+        $this->channels[$channel->getName()] = $channel;
     }
 
     /**
-     * @param $title
-     * @param $message
-     */
-    public function info($title, $message)
-    {
-        $this->addNotification($title, $message, 'info');
-    }
-
-    /**
-     * @param $title
-     * @param $message
-     */
-    public function warning($title, $message)
-    {
-        $this->addNotification($title, $message, 'warning');
-    }
-
-    /**
-     * @param $title
-     * @param $message
-     */
-    public function error($title, $message)
-    {
-        $this->addNotification($title, $message, 'error');
-    }
-
-    /**
+     * Collect all notifications from all collectors.
      *
+     * @return array
      */
     protected function collectNotifications()
     {
+        $notifications = [];
+
         foreach ($this->collectors as $collector) {
-            array_merge($this->notifications, $collector->collect());
+            $notifications[$collector->getChannel()] = empty($notifications[$collector->getChannel()])
+                ? [] : $notifications[$collector->getChannel()];
+
+            array_merge($notifications[$collector->getChannel()], $collector->collect());
         }
+
+        return $notifications;
     }
 }

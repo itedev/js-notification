@@ -1,13 +1,20 @@
 parameters:
   ite_js.notifications.sf_extension.class: ITE\Js\Notification\NotificationExtension
   ite_js.notifications.manager.class: ITE\Js\Notification\NotificationManager
+  ite_js.notifications.channel.null.class: ITE\Js\Notification\Channel\NullChannel
 
 services:
   ite_js.notifications.sf_extension:
     class: %ite_js.notifications.sf_extension.class%
-    arguments: [@ite_js.notifications.manager]
+    arguments: [@ite_js.notifications.manager, %kernel.debug%]
     tags:
       - { name: ite_js.sf.extension, alias: 'notifications' }
 
   ite_js.notifications.manager:
     class: %ite_js.notifications.manager.class%
+    arguments: [%ite_js.notifications.default_channel%]
+
+  ite_js.notifications.channel.null:
+    class: %ite_js.notifications.channel.null.class%
+    tags:
+      - { name: ite_js.notification.channel }

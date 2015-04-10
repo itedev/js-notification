@@ -24,13 +24,20 @@ class SessionCollector implements CollectorInterface
     protected $bagName = 'flashes';
 
     /**
-     * @param SessionInterface $session
-     * @param                  $bagName
+     * @var string
      */
-    public function __construct(SessionInterface $session, $bagName)
+    protected $channelName = 'null';
+
+    /**
+     * @param SessionInterface $session
+     * @param string           $bagName
+     * @param string           $channelName
+     */
+    public function __construct(SessionInterface $session, $bagName, $channelName)
     {
-        $this->session = $session;
-        $this->bagName = $bagName;
+        $this->session     = $session;
+        $this->bagName     = $bagName;
+        $this->channelName = $channelName;
     }
 
     /**
@@ -39,15 +46,15 @@ class SessionCollector implements CollectorInterface
     public function collect()
     {
         $notifications = [];
-        $bag = $this->session->getBag($this->bagName);
+        $bag           = $this->session->getBag($this->bagName);
 
         if ($bag instanceof FlashBagInterface) {
             $flashes = $bag->all();
             foreach ($flashes as $type => $typeFlashes) {
                 foreach ($typeFlashes as $flash) {
-                    $notifications []= [
-                        'type' => $type,
-                        'title' => '',
+                    $notifications [] = [
+                        'type'    => $type,
+                        'title'   => '',
                         'message' => $flash,
                     ];
                 }
@@ -59,6 +66,14 @@ class SessionCollector implements CollectorInterface
         }
 
         return $notifications;
+    }
+
+    /**
+     * @return string
+     */
+    public function getChannel()
+    {
+        return $this->channelName;
     }
 
 }

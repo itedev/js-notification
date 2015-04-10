@@ -14,4 +14,9 @@ interface CollectorInterface
      * @return []
      */
     public function collect();
+
+    /**
+     * @return string
+     */
+    public function getChannel();
 }
