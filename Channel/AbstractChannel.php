@@ -21,7 +21,7 @@ abstract class AbstractChannel implements ChannelInterface
     /**
      * @var Notification[]
      */
-    protected $notifications;
+    protected $notifications = [];
 
     /**
      * @inheritdoc
