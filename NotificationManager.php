@@ -70,7 +70,7 @@ class NotificationManager
 
             $notifications[$channel->getName()] = array_merge(
                 $notifications[$channel->getName()],
-                $channel->getNotifications()
+                $channel->getNotifications() ?: []
             );
         }
 
