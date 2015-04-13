@@ -9,7 +9,6 @@ use ITE\JsBundle\SF\PluginInterface;
 /**
  * Interface ChannelInterface
  *
- * @package ITE\Js\Notification\Channel
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
 interface ChannelInterface extends PluginInterface

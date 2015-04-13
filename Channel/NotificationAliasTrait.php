@@ -7,7 +7,6 @@ use ITE\Js\Notification\Notification;
 /**
  * Class NotificationAliasTrait
  *
- * @package ITE\Js\Notification\Channel
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
 trait NotificationAliasTrait

@@ -44,7 +44,6 @@
   SF.classes.FlashBag = FlashBag;
 
   $(document).ajaxComplete(function (event, xhr, settings) {
-
     var notifications = xhr.getResponseHeader('X-SF-Notifications');
 
     if (notifications) {

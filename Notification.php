@@ -5,7 +5,6 @@ namespace ITE\Js\Notification;
 /**
  * Class Notification
  *
- * @package ITE\Js\Notification
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
 class Notification

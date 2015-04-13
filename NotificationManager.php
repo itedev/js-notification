@@ -9,7 +9,6 @@ use ITE\Js\Notification\Collector\CollectorInterface;
 /**
  * Class NotificationManager
  *
- * @package ITE\Js\Notification
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
 class NotificationManager
@@ -38,7 +37,6 @@ class NotificationManager
     {
         $this->currentChannel = $currentChannel;
     }
-
 
     /**
      * Select current channel.
