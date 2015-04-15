@@ -14,6 +14,8 @@ services:
     class: %ite_js.notifications.manager.class%
     arguments: [%ite_js.notifications.default_channel%]
 
+  notificator: "@ite_js.notifications.manager"
+
   ite_js.notifications.channel.null:
     class: %ite_js.notifications.channel.null.class%
     tags:
