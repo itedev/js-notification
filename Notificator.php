@@ -11,7 +11,7 @@ use ITE\Js\Notification\Collector\CollectorInterface;
  *
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
-class Notificator
+class Notificator implements NotificatorInterface
 {
     use NotificationAliasTrait;
 
