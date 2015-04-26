@@ -5,9 +5,7 @@ namespace ITE\Js\Notification;
 use ITE\Common\CdnJs\Resource\Reference;
 use ITE\Common\Extension\ExtensionFinder;
 use ITE\Js\Notification\Channel\ChannelInterface;
-use ITE\Js\Notification\Definition\Builder\PluginDefinition;
 use ITE\JsBundle\SF\SFExtension;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader;
@@ -16,16 +14,16 @@ use Symfony\Component\DependencyInjection\Reference as DIReference;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 
 /**
- * Class NotificationExtension
+ * Class NotificationSFExtension
  *
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
-class NotificationExtension extends SFExtension
+class NotificationSFExtension extends SFExtension
 {
     /**
-     * @var NotificationManager
+     * @var Notificator
      */
-    protected $nm;
+    protected $notificator;
 
     /**
      * @var bool
@@ -33,12 +31,12 @@ class NotificationExtension extends SFExtension
     private $debug;
 
     /**
-     * @param NotificationManager $nm
-     * @param  bool               $debug
+     * @param Notificator $notificator
+     * @param  bool $debug
      */
-    public function __construct(NotificationManager $nm, $debug)
+    public function __construct(Notificator $notificator, $debug)
     {
-        $this->nm    = $nm;
+        $this->notificator = $notificator;
         $this->debug = $debug;
     }
 
@@ -74,7 +72,7 @@ class NotificationExtension extends SFExtension
                 __DIR__
             );
 
-            $definition = $container->getDefinition('ite_js.notifications.manager');
+            $definition = $container->getDefinition('ite_js.notifications.notificator');
 
             if (!$definition) {
                 return;
@@ -108,7 +106,7 @@ class NotificationExtension extends SFExtension
             ->children()
             ->scalarNode('default_channel')->defaultValue('null')->end()
             ->arrayNode('channels')
-            ->children();;
+            ->children();
 
         $iteDir = __DIR__.'/../../../../';
 
@@ -124,27 +122,28 @@ class NotificationExtension extends SFExtension
             __DIR__
         );
 
-        $node->children()
-            ->arrayNode('collectors')
-            ->addDefaultsIfNotSet()
-            ->children()
-            ->arrayNode('session')
-            ->canBeEnabled()
-            ->addDefaultsIfNotSet()
-            ->children()
-            ->scalarNode('bag_name')
-            ->defaultValue('flashes')
-            ->info('Session FlashBag name.')
-            ->end()
-            ->scalarNode('channel_name')
-            ->defaultValue('null')
-            ->info('Channel name which need to use with collector.')
-            ->end()
-            ->end()
-            ->end()
-            ->end()
-            ->end()
-            ->end();
+        $node
+          ->children()
+                ->arrayNode('collectors')
+                    ->addDefaultsIfNotSet()
+                        ->children()
+                            ->arrayNode('session')
+                            ->canBeEnabled()
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                            ->scalarNode('bag_name')
+                            ->defaultValue('flashes')
+                            ->info('Session FlashBag name.')
+                        ->end()
+                        ->scalarNode('channel_name')
+                        ->defaultValue('null')
+                        ->info('Channel name which need to use with collector.')
+                        ->end()
+                        ->end()
+                        ->end()
+                    ->end()
+                ->end()
+          ->end();
 
         return $node;
     }
@@ -154,7 +153,7 @@ class NotificationExtension extends SFExtension
      */
     public function onAjaxResponse(FilterResponseEvent $event)
     {
-        $notifications = $this->nm->getNotifications();
+        $notifications = $this->notificator->getNotifications();
 
         if (!empty($notifications)) {
             $arrayNotifications = [];
@@ -177,7 +176,7 @@ class NotificationExtension extends SFExtension
     {
         $js = [__DIR__.'/Resources/public/js/sf.notification.js'];
 
-        foreach ($this->nm->getChannels() as $channel) {
+        foreach ($this->notificator->getChannels() as $channel) {
             $js = array_merge($js, $channel->getJavascripts());
         }
 
@@ -189,13 +188,13 @@ class NotificationExtension extends SFExtension
      */
     public function getInlineJavascripts()
     {
-        $notifications = $this->nm->getNotifications();
+        $notifications = $this->notificator->getNotifications();
 
         if (empty($notifications)) {
             return '';
         }
 
-        $dump = '</script>'.$this->dumpCDN().'<script>';
+        $dump = $this->dumpCDN();
         $dump .= '(function($){$(function(){';
 
         foreach ($notifications as $channel => $ns) {
@@ -217,7 +216,7 @@ class NotificationExtension extends SFExtension
     {
         $cdnAssets = '';
 
-        foreach ($this->nm->getChannels() as $channel) {
+        foreach ($this->notificator->getChannels() as $channel) {
             $references = $channel->getCdnJavascripts($this->debug);
             foreach ($references as $reference) {
                 if (!($reference instanceof Reference)) {
@@ -226,7 +225,7 @@ class NotificationExtension extends SFExtension
                     );
                 }
 
-                $cdnAssets .= sprintf('<script type="text/javascript" src="%s"></script>', $reference->getUrl());
+                $cdnAssets .= sprintf('jQuery.getScript("%s");', $reference->getUrl());
             }
 
             $references = $channel->getCdnStylesheets($this->debug);
@@ -237,7 +236,7 @@ class NotificationExtension extends SFExtension
                     );
                 }
 
-                $cdnAssets .= sprintf('<link rel="stylesheet" href="%s" />', $reference->getUrl());
+                $cdnAssets .= sprintf('jQuery("head").append(jQuery("<link rel=\"stylesheet\" type=\"text/css\" />").attr("href", "%s"));', $reference->getUrl());
             }
         }
 

@@ -7,11 +7,11 @@ use ITE\Js\Notification\Channel\NotificationAliasTrait;
 use ITE\Js\Notification\Collector\CollectorInterface;
 
 /**
- * Class NotificationManager
+ * Class Notificator
  *
  * @author  sam0delkin <t.samodelkin@gmail.com>
  */
-class NotificationManager
+class Notificator
 {
     use NotificationAliasTrait;
 

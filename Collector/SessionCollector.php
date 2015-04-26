@@ -2,6 +2,7 @@
 
 namespace ITE\Js\Notification\Collector;
 
+use ITE\Js\Notification\Notification;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -51,11 +52,7 @@ class SessionCollector implements CollectorInterface
             $flashes = $bag->all();
             foreach ($flashes as $type => $typeFlashes) {
                 foreach ($typeFlashes as $flash) {
-                    $notifications [] = [
-                        'type'    => $type,
-                        'title'   => '',
-                        'message' => $flash,
-                    ];
+                    $notifications [] = new Notification($this->channelName, $type, '', $flash);
                 }
             }
         } else {

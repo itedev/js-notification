@@ -2,6 +2,8 @@
 
 namespace ITE\Js\Notification\Collector;
 
+use ITE\Js\Notification\Notification;
+
 /**
  * Interface CollectorInterface
  *
@@ -10,7 +12,7 @@ namespace ITE\Js\Notification\Collector;
 interface CollectorInterface
 {
     /**
-     * @return []
+     * @return Notification[]
      */
     public function collect();
 
