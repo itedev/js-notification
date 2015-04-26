@@ -1,26 +1,24 @@
 <?php
 
-
 namespace ITE\Js\Notification;
 
 /**
- * Interface NotificatorInterface
+ * Interface NotifierInterface
  *
  * @author sam0delkin <t.samodelkin@gmail.com>
  */
-interface NotificatorInterface
+interface NotifierInterface
 {
     /**
      * @param $title
      * @param $message
      * @param $type
      * @param array $pluginOptions
-     * @return mixed
      */
     public function addNotification($title, $message, $type, $pluginOptions = []);
 
     /**
-     * @return Notification[][]|Notification[]
+     * @return Notification[][]
      */
     public function getNotifications();
 } 

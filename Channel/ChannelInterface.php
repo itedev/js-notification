@@ -16,19 +16,19 @@ interface ChannelInterface extends PluginInterface
     /**
      * Add notification to channel.
      *
-     * @param string $title
-     * @param string $message
      * @param string $type
-     * @param array  $pluginOptions
+     * @param string $message
+     * @param string $title
+     * @param array  $options
      *
      * @return mixed
      */
-    public function addNotification($title, $message, $type, $pluginOptions = []);
+    public function addNotification($type, $message, $title, array $options = []);
 
     /**
      * Return array of all saved notifications.
      *
-     * @return Notification[]
+     * @return array|Notification[]
      */
     public function getNotifications();
 

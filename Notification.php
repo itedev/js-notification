@@ -27,32 +27,32 @@ class Notification
     /**
      * @var string
      */
-    private $title;
+    private $message;
 
     /**
      * @var string
      */
-    private $message;
+    private $title;
 
     /**
      * @var array
      */
-    private $pluginOptions;
+    private $options;
 
     /**
      * @param string $channel
      * @param string $type
-     * @param string $title
      * @param string $message
-     * @param array  $pluginOptions
+     * @param string $title
+     * @param array  $options
      */
-    function __construct($channel, $type, $title, $message, $pluginOptions = [])
+    public function __construct($channel, $type, $message, $title, array $options = [])
     {
-        $this->channel       = $channel;
-        $this->type          = $type;
-        $this->title         = $title;
-        $this->message       = $message;
-        $this->pluginOptions = $pluginOptions;
+        $this->channel = $channel;
+        $this->type    = $type;
+        $this->message = $message;
+        $this->title   = $title;
+        $this->options = $options;
     }
 
     /**
@@ -74,25 +74,25 @@ class Notification
     /**
      * @return string
      */
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    /**
-     * @return string
-     */
     public function getMessage()
     {
         return $this->message;
     }
 
     /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
      * @return array
      */
-    public function getPluginOptions()
+    public function getOptions()
     {
-        return $this->pluginOptions;
+        return $this->options;
     }
 
     /**
@@ -101,11 +101,11 @@ class Notification
     public function toArray()
     {
         return [
-            'channel'       => $this->channel,
-            'title'         => $this->title,
-            'type'          => $this->type,
-            'message'       => $this->message,
-            'pluginOptions' => $this->pluginOptions
+            'channel' => $this->channel,
+            'type'    => $this->type,
+            'message' => $this->message,
+            'title'   => $this->title,
+            'options' => $this->options
         ];
     }
 }

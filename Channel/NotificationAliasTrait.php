@@ -12,38 +12,38 @@ use ITE\Js\Notification\Notification;
 trait NotificationAliasTrait
 {
     /**
-     * @param $title
-     * @param $message
+     * @param string $message
+     * @param string $title
      */
-    public function success($title, $message)
+    public function success($message, $title)
     {
-        $this->addNotification($title, $message, Notification::TYPE_SUCCESS);
+        $this->addNotification(Notification::TYPE_SUCCESS, $message, $title);
     }
 
     /**
-     * @param $title
-     * @param $message
+     * @param string $message
+     * @param string $title
      */
-    public function info($title, $message)
+    public function info($message, $title)
     {
-        $this->addNotification($title, $message, Notification::TYPE_INFO);
+        $this->addNotification(Notification::TYPE_INFO, $message, $title);
     }
 
     /**
-     * @param $title
-     * @param $message
+     * @param string $message
+     * @param string $title
      */
-    public function warning($title, $message)
+    public function warning($message, $title)
     {
-        $this->addNotification($title, $message, Notification::TYPE_WARNING);
+        $this->addNotification(Notification::TYPE_WARNING, $message, $title);
     }
 
     /**
-     * @param $title
-     * @param $message
+     * @param string $message
+     * @param string $title
      */
-    public function error($title, $message)
+    public function error($message, $title)
     {
-        $this->addNotification($title, $message, Notification::TYPE_ERROR);
+        $this->addNotification(Notification::TYPE_ERROR, $message, $title);
     }
 }

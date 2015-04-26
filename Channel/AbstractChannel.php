@@ -25,9 +25,9 @@ abstract class AbstractChannel implements ChannelInterface
     /**
      * @inheritdoc
      */
-    public function addNotification($title, $message, $type, $pluginOptions = [])
+    public function addNotification($type, $message, $title, array $options = [])
     {
-        $this->notifications [] = new Notification($this->getName(), $type, $title, $message, $pluginOptions);
+        $this->notifications[] = new Notification($this->getName(), $type, $message, $title, $options);
     }
 
     /**

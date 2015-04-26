@@ -1,11 +1,13 @@
 <?php
 
-namespace ITE\Js\Notification;
+namespace ITE\Js\Notification\SF;
 
 use ITE\Common\CdnJs\Resource\Reference;
 use ITE\Common\Extension\ExtensionFinder;
 use ITE\Js\Notification\Channel\ChannelInterface;
+use ITE\Js\Notification\Notifier;
 use ITE\JsBundle\SF\SFExtension;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader;
@@ -21,9 +23,9 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 class NotificationSFExtension extends SFExtension
 {
     /**
-     * @var Notificator
+     * @var Notifier
      */
-    protected $notificator;
+    protected $notifier;
 
     /**
      * @var bool
@@ -31,66 +33,13 @@ class NotificationSFExtension extends SFExtension
     private $debug;
 
     /**
-     * @param Notificator $notificator
+     * @param Notifier $notifier
      * @param  bool $debug
      */
-    public function __construct(Notificator $notificator, $debug)
+    public function __construct(Notifier $notifier, $debug)
     {
-        $this->notificator = $notificator;
+        $this->notifier = $notifier;
         $this->debug = $debug;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function loadConfiguration(array $config, ContainerBuilder $container)
-    {
-        if ($config['extensions']['notifications']['enabled']) {
-            $container->setParameter(
-                'ite_js.notifications.default_channel',
-                $config['extensions']['notifications']['default_channel']
-            );
-            $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/Resources/config'));
-            $loader->load('services.yml');
-
-            if ($config['extensions']['notifications']['collectors']['session']['enabled']) {
-                $container->setParameter(
-                    'ite_js.notifications.collectors.session.bag_name',
-                    $config['extensions']['notifications']['collectors']['session']['bag_name']
-                );
-                $loader->load('collector/session.yml');
-            }
-
-            $iteDir = __DIR__.'/../../../../';
-
-            ExtensionFinder::loadExtensions(
-                function (ChannelInterface $channel) use ($config, $container) {
-                    $channel->loadConfiguration($config, $container);
-                },
-                $iteDir,
-                'ITE\Js\Notification\Channel\ChannelInterface',
-                __DIR__
-            );
-
-            $definition = $container->getDefinition('ite_js.notifications.notificator');
-
-            if (!$definition) {
-                return;
-            }
-
-            $services = $container->findTaggedServiceIds('ite_js.notifiactions.collector');
-
-            foreach ($services as $id => $attributes) {
-                $definition->addMethodCall('addCollector', [new DIReference($id)]);
-            }
-
-            $services = $container->findTaggedServiceIds('ite_js.notification.channel');
-
-            foreach ($services as $id => $attributes) {
-                $definition->addMethodCall('addChannel', [new DIReference($id)]);
-            }
-
-        }
     }
 
     /**
@@ -100,15 +49,18 @@ class NotificationSFExtension extends SFExtension
     {
         $node = new TreeBuilder();
 
-        $node         = $node->root('notifications');
+        $node         = $node->root('notification');
+        /** @var ArrayNodeDefinition $channelsNode */
         $channelsNode = $node
             ->canBeEnabled()
             ->children()
-            ->scalarNode('default_channel')->defaultValue('null')->end()
-            ->arrayNode('channels')
-            ->children();
+                ->scalarNode('default_channel')
+                    ->defaultValue('null')
+                ->end()
+                ->arrayNode('channels')
+                    ->children();
 
-        $iteDir = __DIR__.'/../../../../';
+        $iteDir = __DIR__.'/../../../../../';
 
         ExtensionFinder::loadExtensions(
             function (ChannelInterface $channel) use ($channelsNode, $container) {
@@ -123,27 +75,23 @@ class NotificationSFExtension extends SFExtension
         );
 
         $node
-          ->children()
+            ->children()
                 ->arrayNode('collectors')
                     ->addDefaultsIfNotSet()
-                        ->children()
-                            ->arrayNode('session')
+                    ->children()
+                        ->arrayNode('session')
                             ->canBeEnabled()
-                            ->addDefaultsIfNotSet()
                             ->children()
-                            ->scalarNode('bag_name')
-                            ->defaultValue('flashes')
-                            ->info('Session FlashBag name.')
-                        ->end()
-                        ->scalarNode('channel_name')
-                        ->defaultValue('null')
-                        ->info('Channel name which need to use with collector.')
-                        ->end()
-                        ->end()
+                                ->scalarNode('channel_name')
+                                    ->defaultValue('null')
+                                    ->info('Channel name which need to use with collector.')
+                                ->end()
+                            ->end()
                         ->end()
                     ->end()
                 ->end()
-          ->end();
+            ->end()
+        ;
 
         return $node;
     }
@@ -151,18 +99,66 @@ class NotificationSFExtension extends SFExtension
     /**
      * @inheritdoc
      */
+    public function loadConfiguration(array $config, ContainerBuilder $container)
+    {
+        if ($config['extensions']['notification']['enabled']) {
+            $container->setParameter(
+                'ite_js.notification.default_channel',
+                $config['extensions']['notification']['default_channel']
+            );
+            $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+            $loader->load('sf.notification.yml');
+
+            if ($config['extensions']['notification']['collectors']['session']['enabled']) {
+                $container->setParameter(
+                    'ite_js.notification.collectors.session.bag_name',
+                    $config['extensions']['notification']['collectors']['session']['bag_name']
+                );
+                $loader->load('collector/session.yml');
+            }
+
+            $iteDir = __DIR__.'/../../../../../';
+
+            ExtensionFinder::loadExtensions(
+                function (ChannelInterface $channel) use ($config, $container) {
+                    $channel->loadConfiguration($config, $container);
+                },
+                $iteDir,
+                'ITE\Js\Notification\Channel\ChannelInterface',
+                __DIR__
+            );
+
+            if (!$container->hasDefinition('ite_js.notification.notifier')) {
+                return;
+            }
+
+            $definition = $container->getDefinition('ite_js.notification.notifier');
+
+            $taggedServices = $container->findTaggedServiceIds('ite_js.notification.collector');
+            foreach ($taggedServices as $id => $tagAttributes) {
+                $definition->addMethodCall('addCollector', [new DIReference($id)]);
+            }
+
+            $taggedServices = $container->findTaggedServiceIds('ite_js.notification.channel');
+            foreach ($taggedServices as $id => $tagAttributes) {
+                $definition->addMethodCall('addChannel', [new DIReference($id)]);
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function onAjaxResponse(FilterResponseEvent $event)
     {
-        $notifications = $this->notificator->getNotifications();
-
+        $notifications = $this->notifier->getNotifications();
         if (!empty($notifications)) {
             $arrayNotifications = [];
             foreach ($notifications as $channel => $nn) {
                 $arrayNotifications[$channel] = [];
                 foreach ($nn as $n) {
-                    $arrayNotifications[$channel] [] = $n->toArray();
+                    $arrayNotifications[$channel][] = $n->toArray();
                 }
-
             }
 
             $event->getResponse()->headers->add(['X-SF-Notifications' => json_encode($arrayNotifications)]);
@@ -174,9 +170,9 @@ class NotificationSFExtension extends SFExtension
      */
     public function getJavascripts()
     {
-        $js = [__DIR__.'/Resources/public/js/sf.notification.js'];
+        $js = [__DIR__.'/../Resources/public/js/sf.notification.js'];
 
-        foreach ($this->notificator->getChannels() as $channel) {
+        foreach ($this->notifier->getChannels() as $channel) {
             $js = array_merge($js, $channel->getJavascripts());
         }
 
@@ -188,13 +184,13 @@ class NotificationSFExtension extends SFExtension
      */
     public function getInlineJavascripts()
     {
-        $notifications = $this->notificator->getNotifications();
+        $notifications = $this->notifier->getNotifications();
 
         if (empty($notifications)) {
             return '';
         }
 
-        $dump = $this->dumpCDN();
+        $dump = $this->dumpCdn();
         $dump .= '(function($){$(function(){';
 
         foreach ($notifications as $channel => $ns) {
@@ -212,11 +208,11 @@ class NotificationSFExtension extends SFExtension
     /**
      * @return string
      */
-    protected function dumpCDN()
+    protected function dumpCdn()
     {
         $cdnAssets = '';
 
-        foreach ($this->notificator->getChannels() as $channel) {
+        foreach ($this->notifier->getChannels() as $channel) {
             $references = $channel->getCdnJavascripts($this->debug);
             foreach ($references as $reference) {
                 if (!($reference instanceof Reference)) {

@@ -12,7 +12,7 @@ use ITE\Js\Notification\Notification;
 interface CollectorInterface
 {
     /**
-     * @return Notification[]
+     * @return array|Notification[]
      */
     public function collect();
 
