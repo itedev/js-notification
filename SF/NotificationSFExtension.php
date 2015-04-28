@@ -210,7 +210,7 @@ class NotificationSFExtension extends SFExtension
      */
     protected function dumpCdn()
     {
-        $cdnAssets = '';
+        $cdnAssets = '</script>';
 
         foreach ($this->notifier->getChannels() as $channel) {
             $references = $channel->getCdnJavascripts($this->debug);
@@ -221,7 +221,7 @@ class NotificationSFExtension extends SFExtension
                     );
                 }
 
-                $cdnAssets .= sprintf('jQuery.getScript("%s");', $reference->getUrl());
+                $cdnAssets .= sprintf('<script type="text/javascript" src="%s"></script>");', $reference->getUrl());
             }
 
             $references = $channel->getCdnStylesheets($this->debug);
@@ -232,11 +232,11 @@ class NotificationSFExtension extends SFExtension
                     );
                 }
 
-                $cdnAssets .= sprintf('jQuery("head").append(jQuery("<link rel=\"stylesheet\" type=\"text/css\" />").attr("href", "%s"));', $reference->getUrl());
+                $cdnAssets .= sprintf('<link rel="stylesheet" type="text/css" href="%s" />', $reference->getUrl());
             }
         }
 
-        return $cdnAssets;
+        return $cdnAssets . "<script>";
     }
 
 }
