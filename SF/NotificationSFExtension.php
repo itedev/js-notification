@@ -221,7 +221,7 @@ class NotificationSFExtension extends SFExtension
                     );
                 }
 
-                $cdnAssets .= sprintf('<script type="text/javascript" src="%s"></script>");', $reference->getUrl());
+                $cdnAssets .= sprintf('<script type="text/javascript" src="%s"></script>', $reference->getUrl());
             }
 
             $references = $channel->getCdnStylesheets($this->debug);
