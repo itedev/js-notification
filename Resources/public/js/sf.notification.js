@@ -43,20 +43,22 @@
   SF.fn.flashes = new FlashBag();
   SF.classes.FlashBag = FlashBag;
 
-  $(document).ajaxComplete(function(event, xhr, settings) {
-    var notificationsHeader = xhr.getResponseHeader('X-SF-Notifications');
-    if (notificationsHeader) {
-      var notifications = $.parseJSON(notificationsHeader);
+  $(function() {
+    $(document).on('ite-pre-ajax-complete', function(e, data) {
+      if (!data.hasOwnProperty('notifications')) {
+        return;
+      }
 
+      var notifications = data['notifications'];
       $.each(notifications, function(i, notifications) {
         $.each(notifications, function(j, notification) {
           SF.flashes.addObject(notification);
         });
-
       });
 
       SF.flashes.show();
-    }
+    });
   });
+
 
 })(jQuery);

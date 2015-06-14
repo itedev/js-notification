@@ -6,6 +6,7 @@ use ITE\Common\CdnJs\Resource\Reference;
 use ITE\Common\Extension\ExtensionFinder;
 use ITE\Js\Notification\Channel\ChannelInterface;
 use ITE\Js\Notification\Notifier;
+use ITE\JsBundle\EventListener\Event\AjaxResponseEvent;
 use ITE\JsBundle\SF\SFExtension;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -13,7 +14,6 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference as DIReference;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 
 /**
  * Class NotificationSFExtension
@@ -149,7 +149,7 @@ class NotificationSFExtension extends SFExtension
     /**
      * @inheritdoc
      */
-    public function onAjaxResponse(FilterResponseEvent $event)
+    public function onAjaxResponse(AjaxResponseEvent $event)
     {
         $notifications = $this->notifier->getNotifications();
         if (!empty($notifications)) {
@@ -161,7 +161,7 @@ class NotificationSFExtension extends SFExtension
                 }
             }
 
-            $event->getResponse()->headers->add(['X-SF-Notifications' => json_encode($arrayNotifications)]);
+            $event->getAjaxDataBag()->addHeaderData('notifications', $arrayNotifications);
         }
     }
 
@@ -236,7 +236,7 @@ class NotificationSFExtension extends SFExtension
             }
         }
 
-        return $cdnAssets . "<script>";
+        return $cdnAssets . '<script>';
     }
 
 }
