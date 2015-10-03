@@ -49,7 +49,7 @@ class NotificationSFExtension extends SFExtension
     {
         $node = new TreeBuilder();
 
-        $node         = $node->root('notification');
+        $node = $node->root('notification');
         /** @var ArrayNodeDefinition $channelsNode */
         $channelsNode = $node
             ->canBeEnabled()
@@ -182,7 +182,7 @@ class NotificationSFExtension extends SFExtension
     /**
      * @inheritdoc
      */
-    public function getInlineJavascripts()
+    public function dump()
     {
         $notifications = $this->notifier->getNotifications();
 
