@@ -1,4 +1,62 @@
 (function ($) {
+  // Channel
+  var Channel = function (methods) {
+    methods = methods || {};
+
+    var self = this;
+    $.each(methods, function(methodName, method) {
+      self[methodName] = method;
+    });
+
+    this.defaultOptions = {};
+    this.initialize();
+  };
+
+  Channel.prototype = {
+    message: function (type, title, message, options) {},
+    notification: function (notification) {
+      var options = $.extend(this.defaultOPtions, notification.options|{});
+      this.message(notification.type, notification.title, notification.message, options);
+    },
+    success: function (title, message, options) {
+      return this.message('success', title, message, options);
+    },
+    info: function (title, message, options) {
+      return this.message('info', title, message, options);
+    },
+    warning: function (title, message, options) {
+      return this.message('warning', title, message, options);
+    },
+    error: function (title, message, options) {
+      return this.message('error', title, message, options);
+    },
+    initialize: function (defaultOptions) {
+      this.defaultOptions = $.extend(this.defaultOptions, defaultOptions);
+    }
+  };
+
+  var Notifier = function () {
+    this.channels = {};
+  };
+
+  Notifier.prototype = {
+    notify: function (channel, type, title, message, options) {
+      if (!this.channels.hasOwnProperty(channel)) {
+        throw 'Channel "' + channel + '" is not defined.';
+      }
+      this.channels[channel].message(type, title, message, options);
+    },
+    get: function (channel) {
+      if (!this.channels.hasOwnProperty(channel)) {
+        throw 'Channel "' + channel + '" is not defined.';
+      }
+
+      return this.channels[channel];
+    }
+  };
+
+  Notifier.prototype.fn = Notifier.prototype;
+
   // FlashBag
   var FlashBag = function () {
     this.flashes = {};
@@ -31,7 +89,7 @@
     show: function () {
       $.each(this.flashes, function(channel, notifications) {
         $.each(notifications, function(i, notification) {
-          $(document).trigger('ite-show.' + channel + '.notification', notification);
+          this.channels[channel].notification(notification);
         });
       });
       this.flashes = {};
@@ -40,7 +98,11 @@
 
   FlashBag.prototype.fn = FlashBag.prototype;
 
+  SF.fn.notifier = new Notifier();
+  SF.fn.notifier.fn.channels = {};
   SF.fn.flashes = new FlashBag();
+  SF.classes.Channel = Channel;
+  SF.classes.Notifier = Notifier;
   SF.classes.FlashBag = FlashBag;
 
   $(function() {
