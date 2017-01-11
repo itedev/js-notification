@@ -89,7 +89,7 @@
     show: function () {
       $.each(this.flashes, function(channel, notifications) {
         $.each(notifications, function(i, notification) {
-          this.channels[channel].notification(notification);
+          SF.notifier.channels[channel].notification(notification);
         });
       });
       this.flashes = {};
