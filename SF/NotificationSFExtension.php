@@ -2,7 +2,6 @@
 
 namespace ITE\Js\Notification\SF;
 
-use ITE\Common\CdnJs\Resource\Reference;
 use ITE\Common\Extension\ExtensionFinder;
 use ITE\Js\Notification\Channel\ChannelInterface;
 use ITE\Js\Notification\Notifier;
@@ -13,7 +12,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference as DIReference;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Class NotificationSFExtension
@@ -136,12 +135,12 @@ class NotificationSFExtension extends SFExtension
 
             $taggedServices = $container->findTaggedServiceIds('ite_js.notification.collector');
             foreach ($taggedServices as $id => $tagAttributes) {
-                $definition->addMethodCall('addCollector', [new DIReference($id)]);
+                $definition->addMethodCall('addCollector', [new Reference($id)]);
             }
 
             $taggedServices = $container->findTaggedServiceIds('ite_js.notification.channel');
             foreach ($taggedServices as $id => $tagAttributes) {
-                $definition->addMethodCall('addChannel', [new DIReference($id)]);
+                $definition->addMethodCall('addChannel', [new Reference($id)]);
             }
         }
     }
@@ -185,20 +184,16 @@ class NotificationSFExtension extends SFExtension
     public function dump()
     {
         $notifications = $this->notifier->getNotifications();
-
         if (empty($notifications)) {
             return '';
         }
 
-        $dump = $this->dumpCdn();
-        $dump .= '(function($){$(function(){';
-
+        $dump = '(function($){$(function(){';
         foreach ($notifications as $channel => $ns) {
             foreach ($ns as $notification) {
-                $dump .= 'SF.flashes.addObject('.json_encode($notification->toArray()).');';
+                $dump .= 'SF.flashes.addObject(' . json_encode($notification->toArray()) . ');';
             }
         }
-
         $dump .= 'SF.flashes.show();';
         $dump .= '});})(jQuery);';
 
@@ -206,37 +201,28 @@ class NotificationSFExtension extends SFExtension
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    protected function dumpCdn()
+    public function getCdnStylesheets($debug)
     {
-        $cdnAssets = '</script>';
-
+        $stylesheets = [];
         foreach ($this->notifier->getChannels() as $channel) {
-            $references = $channel->getCdnJavascripts($this->debug);
-            foreach ($references as $reference) {
-                if (!($reference instanceof Reference)) {
-                    throw new \InvalidArgumentException(
-                        'getCdnJavascripts method should return array of Reference class.'
-                    );
-                }
-
-                $cdnAssets .= sprintf('<script type="text/javascript" src="%s"></script>', $reference->getUrl());
-            }
-
-            $references = $channel->getCdnStylesheets($this->debug);
-            foreach ($references as $reference) {
-                if (!($reference instanceof Reference)) {
-                    throw new \InvalidArgumentException(
-                        'getCdnStylesheets method should return array of Reference class.'
-                    );
-                }
-
-                $cdnAssets .= sprintf('<link rel="stylesheet" type="text/css" href="%s" />', $reference->getUrl());
-            }
+            $stylesheets = array_merge($stylesheets, $channel->getCdnStylesheets($debug));
         }
 
-        return $cdnAssets . '<script>';
+        return $stylesheets;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getCdnJavascripts($debug)
+    {
+        $javascripts = [];
+        foreach ($this->notifier->getChannels() as $channel) {
+            $javascripts = array_merge($javascripts, $channel->getCdnJavascripts($debug));
+        }
+
+        return $javascripts;
+    }
 }
