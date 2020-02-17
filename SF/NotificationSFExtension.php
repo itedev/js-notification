@@ -207,7 +207,9 @@ class NotificationSFExtension extends SFExtension
     {
         $stylesheets = [];
         foreach ($this->notifier->getChannels() as $channel) {
-            $stylesheets = array_merge($stylesheets, $channel->getCdnStylesheets($debug));
+            if ($channel->isCdnEnabled()) {
+                $stylesheets = array_merge($stylesheets, $channel->getCdnStylesheets($debug));
+            }
         }
 
         return $stylesheets;
@@ -220,7 +222,9 @@ class NotificationSFExtension extends SFExtension
     {
         $javascripts = [];
         foreach ($this->notifier->getChannels() as $channel) {
-            $javascripts = array_merge($javascripts, $channel->getCdnJavascripts($debug));
+            if ($channel->isCdnEnabled()) {
+                $javascripts = array_merge($javascripts, $channel->getCdnJavascripts($debug));
+            }
         }
 
         return $javascripts;

@@ -33,6 +33,11 @@ interface ChannelInterface extends PluginInterface
     public function getNotifications();
 
     /**
+     * @return bool
+     */
+    public function isCdnEnabled();
+
+    /**
      * @return string
      */
     public function getName();
