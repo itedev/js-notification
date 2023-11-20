@@ -60,6 +60,7 @@ class NotificationSFExtension extends SFExtension
                     ->children();
 
         $iteDir = __DIR__.'/../../../../../';
+        $srcDir = __DIR__.'/../../../../../../../src/';
 
         ExtensionFinder::loadExtensions(
             function (ChannelInterface $channel) use ($channelsNode, $container) {
@@ -69,6 +70,18 @@ class NotificationSFExtension extends SFExtension
                 }
             },
             $iteDir,
+            'ITE\Js\Notification\Channel\ChannelInterface',
+            __DIR__
+        );
+
+        ExtensionFinder::loadExtensions(
+            function (ChannelInterface $channel) use ($channelsNode, $container) {
+                $config = $channel->getConfiguration($container);
+                if ($config) {
+                    $channelsNode->append($config);
+                }
+            },
+            $srcDir,
             'ITE\Js\Notification\Channel\ChannelInterface',
             __DIR__
         );
@@ -117,12 +130,22 @@ class NotificationSFExtension extends SFExtension
             }
 
             $iteDir = __DIR__.'/../../../../../';
+            $srcDir = __DIR__.'/../../../../../../../src/';
 
             ExtensionFinder::loadExtensions(
                 function (ChannelInterface $channel) use ($config, $container) {
                     $channel->loadConfiguration($config, $container);
                 },
                 $iteDir,
+                'ITE\Js\Notification\Channel\ChannelInterface',
+                __DIR__
+            );
+
+            ExtensionFinder::loadExtensions(
+                function (ChannelInterface $channel) use ($config, $container) {
+                    $channel->loadConfiguration($config, $container);
+                },
+                $srcDir,
                 'ITE\Js\Notification\Channel\ChannelInterface',
                 __DIR__
             );
